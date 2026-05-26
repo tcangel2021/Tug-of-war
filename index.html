@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tug of Knowledge - Classroom Game</title>
+    <!-- Tailwind CSS for modern layout -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Canvas Confetti for Victory Screen -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+            background-color: #e0f2fe; 
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNiYmU5ZmYiIGZpbGwtb3BhY2l0eT0iMC41Ij48cGF0aCBkPSJNMCAwaDR2NGgwVjB6TTAgMjRoNHY0SDB2LTR6TTAgNDBoNHY0SDB2LTR6TTI0IDBoNHY0h00VjB6TTI0IDI0aDR2NGgtNFYyNHpNMjQgNDBoNHY0h00VkQwek00IDRoNHY0SDRWNHpNNCAyOGg0djRIMDR2LTR6TTI4IDRoNHY0h00V0R6TTI4IDI4aDR2NGgtNFYyOHpNDCA4aDR2NGgtNFY4ek00IDMyaDR2NGgtNFYzMnpNMjggOGg0djRoLTRWOHpNMjggMzJoNHY0h00VzMyeU04IDBoNHY0SDhWMHpNDCAyMGg0djRINFYyMHpNDCA4aDR2NGgtNFY4ek00IDMyaDR2NGgtNFYzMnpNMjggOGg0djRoLTRWOHpNMjggMzJoNHY0h00VzMyeU04IDBoNHY0SDhWMHpNDCAyMGg0djRINFYyMHpNDCA0MGg0djRINFY0MHpNMzIgMGg0djRIMzJWNDB6TTEyIDRoNHY0h00VjR6TTEyIDI4aDR2NGgtNFYyOHpNMzYgNGg0djRoLTRWNHpNMzYgMjhoNHY0h00VjI4ek0xMiA4aDR2NGgtNFYgek0xMiAzMmg0djRoLTRWMzJ6TTM2IDhoNHY0h00Vjh6TTM2IDMyaDR2NGgtNFYzMnpNMTYgMGg0djRILTJWME9NMTYgMjBoNHY0SC0yMFYyMHpNMTYgNDBoNHY0SC0yMFY0MHpORDAgMGg0djRING9WMHpORDAgMjBoNHY0NE9WMjB6TkQwIDQwaDR2NE8wVjQwek0yMCA4aDR2NEg4Vjh6TTIwIDMyaDR2NEg4VjMyeiIvPjwvZz48L2c+PC9zdmc+');
+        }
+        .font-game {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+        }
+        .rope-visual {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDgwIDE2Ij48ZyBmaWxsPSIjYjQ1MzA5IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDE0LjU4Nkw3Ljk4MyAxMC41IDE2IDE0LjU4Nlh2OC4wODZMMy45ODMgNCAwIDguMDg2djYuNUgxNk0wIDloLTR2NGg0VjB6TTI4IDBoNHY0h00VjB6TTI4IDI0aDR2NGgtNFYyNHpNMjQgNDBoNHY0h00VkQwek00IDRoNHY0SDRWNHpNNCAyOGg0djRIMDR2LTR6TTI4IDRoNHY0h00V0R6TTI4IDI4aDR2NGgtNFYyOHpNDCA4aDR2NGgtNFY4ek00IDMyaDR2NGgtNFYzMnpNMjggOGg0djRoLTRWOHpNMjggMzJoNHY0h00VzMyeU04IDBoNHY0SDhWMHpNDCAyMGg0djRINFYyMHpNDCA0MGg0djRINFY0MHpNMzIgMGg0djRIMzJWNDB6TTEyIDRoNHY0aC00VjR6TTEyIDI4aDR2NGgtNFYyOHpNMzYgNGg0djRoLTRWNHpNMzYgMjhoNHY0h00VjI4ek0xMiA4aDR2NGgtNFY4ek0xMiAzMmg0djRoLTRWMzJ6TTM2IDhoNHY0h00Vjh6TTM2IDMyaDR2NGgtNFYzMnpNMTYgMGg0djRILTJWME9NMTYgMjBoNHY0SC0yMFYyMHpNMTYgNDBoNHY0SC0yMFY0MHpORDAgMGg0djRING9WMHpORDAgMjBoNHY0NE9WMjB6TkQwIDQwaDR2NE8wVjQwek0yMCA4aDR2NEg4Vjh6TTIwIDMyaDR2NEg4VjMyeiIvPjwvZz48L2c+PC9zdmc+');
+            background-repeat: repeat-x;
+            background-position: center;
+        }
+
+        /* Pure Dynamic Soft-Blended Background Canvas Specifically tailored for Game Board Presentation Frame */
+        .game-screen-bg {
+            position: relative;
+        }
+        .game-screen-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: url('https://cdn.vectorstock.com/i/500p/27/67/cartoon-of-two-teams-children-pulling-a-rope-vector-62632767.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.18; /* Perfectly balanced to avoid overpowering modern vector elements and text labels */
+            pointer-events: none;
+        }
+        .game-screen-content {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Interactive Drag Flag Layer - Strict High Precision Touch Action Rules */
+        #rope-flag {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            touch-action: none;
+            -webkit-user-drag: none;
+            z-index: 50;
+            transition: left 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+        }
+        #rope-flag:active {
+            cursor: grabbing;
+        }
+        .dragging #rope-flag {
+            transition: none !important;
+        }
+        .high-contrast {
+            filter: contrast(1.75) invert(0);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake-element {
+            animation: shake 0.25s ease-in-out 2;
+        }
+
+        /* Strict Overrides to Prevent Target Overlaps on Interactive Board Screens */
+        #media-choices-grid button {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="text-slate-900 min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+    <!-- BUILT-IN AUDIO SYNTH & AI VOICE CONTEXT -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+        function soundCorrect() { playTone(587.33, 'triangle', 0.15); setTimeout(() => playTone(880, 'triangle', 0.25), 80); }
+        function soundIncorrect() { playTone(150, 'sawtooth', 0.3); }
+        function soundPull() { playTone(240, 'sine', 0.12); }
+        function soundSnap() { playTone(440, 'sine', 0.05); }
+        function soundVictory() { [349.23, 440.00, 523.25, 698.46].forEach((n, i) => { setTimeout(() => playTone(n, 'sine', 0.4), i * 120); }); }
+
+        // UNIFIED AI VOICE SPEECH GENERATOR FOR PC, VIEWBOARD, & IPAD
+        function generateAIVoiceSpeak(textToSay) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel(); 
+            
+            const utterance = new SpeechSynthesisUtterance(textToSay);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85; 
+            utterance.pitch = 1.0;
+
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => 
+                v.lang.includes('en-US') && 
+                (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural'))
+            );
+            if (preferredVoice) utterance.voice = preferredVoice;
+
+            window.speechSynthesis.speak(utterance);
+        }
+        window.addEventListener('pointerdown', () => { if('speechSynthesis' in window) window.speechSynthesis.getVoices(); }, { once: true });
+    </script>
+
+    <!-- NAVIGATION HEADER -->
+    <header class="p-4 bg-white border-b-4 border-sky-200 flex justify-between items-center shadow-sm relative z-20">
+        <h1 class="text-2xl md:text-3xl font-game text-sky-600 tracking-tight cursor-pointer" onclick="showScreen('start-screen')">
+            🪢 TUG <span class="text-amber-500">of</span> KNOWLEDGE
+        </h1>
+        <div class="flex items-center gap-2">
+            <button onclick="document.body.classList.toggle('high-contrast')" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-lg" title="High Contrast">👁️</button>
+            <button onclick="toggleFullscreen()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-lg" title="Fullscreen">📺</button>
+            <button onclick="openDashboard()" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-game rounded-full text-sm shadow transition">⚙️ Teacher Dash</button>
+        </div>
+    </header>
+
+    <!-- CONTENT DISPLAY ROUTER -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 relative">
+
+        <!-- SCREEN 1: START SETUP -->
+        <div id="start-screen" class="w-full max-w-2xl text-center space-y-8 py-6 relative z-10">
+            <div class="bg-white p-8 rounded-3xl border-4 border-sky-100 shadow-xl inline-block w-full">
+                <span class="text-7xl block mb-4 animate-bounce">🪢</span>
+                <h2 class="text-4xl md:text-5xl font-game text-sky-950 tracking-tight leading-none uppercase">Classroom Tug-Of-War</h2>
+                <p class="text-sm text-slate-400 mt-2">Pure content projection module for interactive class response styles.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border-2 border-sky-100 shadow-md max-w-md mx-auto grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-red-500 mb-1 tracking-wider uppercase">Team A (Left)</label>
+                    <input id="setup-team-a" type="text" value="Red Team" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-center font-bold text-slate-700 focus:border-red-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-sky-500 mb-1 tracking-wider uppercase">Team B (Right)</label>
+                    <input id="setup-team-b" type="text" value="Blue Team" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-center font-bold text-slate-700 focus:border-sky-400 outline-none">
+                </div>
+            </div>
+
+            <div class="max-w-xs mx-auto">
+                <button onclick="startGame()" class="w-full p-5 bg-amber-400 hover:bg-amber-300 text-white font-game text-2xl rounded-2xl shadow-lg border-b-8 border-amber-600 active:transform active:scale-95 transition-all">
+                    ▶️ Play Game
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MAIN GAME ARENA (CONTAINS STYLISH SUBDUED GRAPHIC BACKDROP) -->
+        <div id="game-screen" class="w-full hidden max-w-5xl flex flex-col space-y-4 game-screen-bg p-4 rounded-3xl transition-all duration-200">
+            
+            <div class="game-screen-content flex flex-col space-y-4 w-full">
+                <!-- TEAM BANNER LABELS -->
+                <div class="flex justify-between items-center p-3 bg-white/95 backdrop-blur rounded-xl border-2 border-sky-100 shadow-sm px-6">
+                    <span id="game-team-a-name" class="font-game text-xl text-red-500">Red Team</span>
+                    <div class="flex items-center gap-3">
+                        <span id="active-folder-badge" class="text-xs font-game bg-sky-50 text-sky-600 px-4 py-1 rounded-full border border-sky-100 uppercase tracking-widest">Demo Pack</span>
+                        <!-- DYNAMIC VISUAL COUNTDOWN TIMER DISPLAY STACK -->
+                        <span id="game-timer-display" class="hidden text-sm font-game bg-red-50 text-red-600 px-4 py-1 rounded-full border border-red-100 animate-pulse">⏳ --s</span>
+                    </div>
+                    <span id="game-team-b-name" class="font-game text-xl text-sky-600">Blue Team</span>
+                </div>
+
+                <!-- ROPE & PHYSICS FLAG CONTAINER -->
+                <div id="tug-track-container" class="relative bg-white/95 backdrop-blur p-12 py-16 rounded-3xl border-2 border-sky-100 shadow-md select-none">
+                    <!-- Center Balance Anchor Line -->
+                    <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-amber-200 -translate-x-1/2"></div>
+                    
+                    <!-- The Live Rope Area Track -->
+                    <div id="rope-track" class="relative w-full h-8 rounded-full rope-visual flex items-center">
+                        
+                        <!-- Fixed Target Snap Node Elements (-6 to 6) -->
+                        <div class="absolute inset-0 flex justify-between items-center px-2 pointer-events-none">
+                            <div class="w-6 h-6 rounded-full bg-red-600 border-4 border-red-200 flex items-center justify-center text-[9px] font-bold text-white font-game" id="v-knot--6">W</div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot--5"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot--4"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot--3"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot--2"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot--1"></div>
+                            
+                            <div class="w-4 h-4 rounded-full bg-amber-500/40 border border-amber-600/30" id="v-knot-0"></div>
+                            
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot-1"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot-3"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-800/30" id="v-knot-5"></div>
+                            <div class="w-6 h-6 rounded-full bg-sky-600 border-4 border-sky-200 flex items-center justify-center text-[9px] font-bold text-white font-game" id="v-knot-6">W</div>
+                        </div>
+
+                        <!-- Centered Stable Floating Flag Pointer Pin -->
+                        <div id="rope-flag" style="left: 50%;">
+                            <div class="w-14 h-22 flex flex-col items-center drop-shadow-md pointer-events-none">
+                                <div class="w-14 h-9 bg-red-500 rounded-r border border-red-700 relative">
+                                    <div class="absolute inset-1 bg-white/20 rounded-sm"></div>
+                                </div>
+                                <div class="w-1.5 h-14 bg-slate-700 rounded-b"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- CLEAN CONTENT PRESENTATION DISPLAY BOX -->
+                <div class="bg-white/95 backdrop-blur rounded-3xl border-2 border-sky-50 p-6 shadow-lg flex flex-col justify-between min-h-[340px]">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-400 border-b border-slate-50 pb-2">
+                        <span id="question-counter-text">Question 1</span>
+                        <button id="media-replay-voice-btn" onclick="triggerActiveSpeechGeneration()" class="hidden bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-1.5 rounded-full font-game items-center gap-1 text-sm transition shadow-sm">
+                            🔊 Read Aloud Again
+                        </button>
+                    </div>
+
+                    <!-- DYNAMIC MEDIA GENERATION PORTS -->
+                    <div class="flex flex-col items-center justify-center py-4 flex-grow w-full space-y-4">
+                        
+                        <!-- Image Target Module -->
+                        <div id="media-image-box" class="hidden max-w-xs bg-slate-50 border p-1 rounded-xl shadow-inner">
+                            <img id="media-image-node" src="" alt="Prompt Visual" class="max-h-40 object-contain rounded-lg">
+                        </div>
+
+                        <!-- Standard Text Target Module -->
+                        <div id="media-text-box" class="text-center w-full px-4 transition-all duration-150">
+                            <h3 id="media-text-node" class="font-game tracking-wide text-slate-800 leading-normal">
+                                Prompt Content Label Placeholder
+                            </h3>
+                        </div>
+
+                        <!-- INTERACTIVE MULTIPLE CHOICE BUTTON CONTAINER FOR KIDS -->
+                        <div id="media-choices-grid" class="hidden grid grid-cols-2 gap-4 w-full max-w-xl pt-2">
+                            <!-- Injected via JavaScript -->
+                        </div>
+
+                    </div>
+
+                    <!-- TEACHER TUG POINT TRIGGERS -->
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                        <button onclick="pullRopeEngine('A')" class="p-3.5 bg-red-500 hover:bg-red-400 text-white font-game rounded-xl shadow-md border-b-4 border-red-700 active:scale-98 transition-all">
+                            👈 Team A Scores (Pull Left)
+                        </button>
+                        <button onclick="pullRopeEngine('B')" class="p-3.5 bg-sky-500 hover:bg-sky-400 text-white font-game rounded-xl shadow-md border-b-4 border-sky-700 active:scale-98 transition-all">
+                            Team B Scores (Pull Right) 👉
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FOOTER TASK ACTIONS BAR - SIGNIFICANTLY SCALED UP BUTTONS FOR CLASSROOM CONTROL -->
+                <div class="flex justify-between items-center bg-white/95 backdrop-blur p-4 rounded-2xl border-2 border-sky-100 shadow-sm">
+                    <div class="flex gap-3">
+                        <button onclick="changeQuestionIndex(-1)" class="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-game text-base shadow-sm active:scale-95 transition-all">⏮️ Back</button>
+                        <button onclick="changeQuestionIndex(1)" class="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 rounded-xl font-game text-base shadow-sm active:scale-95 transition-all">Next ⏭️</button>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="exitGameArena()" class="px-6 py-3.5 bg-slate-200 text-slate-700 font-game rounded-xl text-base active:scale-95 transition-all">🏳️ Exit</button>
+                        <button onclick="resetRopePosition()" class="px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-white font-game rounded-xl text-base shadow border-b-4 border-amber-600 active:scale-95 transition-all">🔄 Reset Rope</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: MATCH VICTORY BANNER -->
+        <div id="victory-screen" class="w-full hidden max-w-md text-center p-8 bg-white border-8 border-amber-300 rounded-3xl shadow-2xl space-y-6 relative z-10">
+            <h2 class="text-5xl font-game text-amber-500 animate-pulse">🏆 CHAMPION!</h2>
+            <p id="winner-text-banner" class="text-2xl font-bold bg-amber-50 p-3 rounded-xl text-slate-800">Team Wins</p>
+            
+            <div class="flex gap-3 pt-2">
+                <button onclick="startGame()" class="flex-1 p-3 bg-amber-400 hover:bg-amber-300 text-white font-game rounded-xl shadow-md border-b-4 border-amber-600">Rematch</button>
+                <button onclick="exitGameArena()" class="flex-1 p-3 bg-slate-200 hover:bg-slate-300 font-game text-slate-700 rounded-xl">Home</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- RIGHT FIXED TEACHER DRAWER / FILE PACK SYSTEM -->
+    <div id="teacher-dashboard" class="fixed top-0 right-0 bottom-0 w-full max-w-xl bg-white border-l-4 border-sky-400 shadow-2xl transform translate-x-full transition-transform duration-200 z-50 flex flex-col hidden">
+        <div class="p-4 bg-sky-50 border-b border-sky-100 flex justify-between items-center shrink-0">
+            <div>
+                <h3 class="text-lg font-game text-sky-700">⚙️ Dashboard Console</h3>
+                <p class="text-xs text-slate-400">Store question folders locally on this device</p>
+            </div>
+            <button onclick="closeDashboard()" class="text-2xl font-bold text-slate-400 hover:text-slate-700 p-2">&times;</button>
+        </div>
+
+        <!-- DASHBOARD CONTAINER PANEL -->
+        <div class="p-5 space-y-6 flex-grow overflow-y-auto">
+            
+            <!-- CONTROLS & PARAMS SELECTION CONFIG (RANDOMIZER AND COUNTDOWN TIMER ENGINE) -->
+            <section class="bg-sky-50 p-4 rounded-xl border border-sky-100 space-y-3 text-xs">
+                <h4 class="font-game text-sky-800 uppercase tracking-wider text-xs">🎲 Playback Preferences</h4>
+                <div class="grid grid-cols-2 gap-4 items-center">
+                    <!-- Randomization Configuration Checkbox Toggle -->
+                    <div class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+                        <input id="param-randomize-checkbox" type="checkbox" onchange="handlePreferenceParamChange()" class="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500">
+                        <label for="param-randomize-checkbox" class="font-game text-slate-700 cursor-pointer text-xs">Randomize Deck</label>
+                    </div>
+                    <!-- Countdown Timer Custom Duration Dropdown Selector -->
+                    <div class="bg-white p-2 rounded-lg border border-slate-200 flex flex-col">
+                        <label for="param-timer-select" class="font-game text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">Countdown Timer</label>
+                        <select id="param-timer-select" onchange="handlePreferenceParamChange()" class="bg-transparent border-none font-bold text-slate-700 focus:outline-none text-xs">
+                            <option value="none">None</option>
+                            <option value="10">10s</option>
+                            <option value="15">15s</option>
+                            <option value="20">20s</option>
+                            <option value="25">25s</option>
+                            <option value="30">30s</option>
+                            <option value="60">60s</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FOLDER REUSE AND STORAGE BLOCK -->
+            <section class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 space-y-3 text-xs">
+                <h4 class="font-game text-amber-800 uppercase tracking-wider text-xs">📁 Local Question Folders</h4>
+                
+                <div class="flex gap-2">
+                    <input id="new-folder-name-box" type="text" placeholder="New Folder Name (e.g., Unit 3 Vocabulary)" class="flex-grow bg-white border border-slate-300 rounded-lg p-2 font-medium">
+                    <button onclick="saveActiveStackToFolder()" class="bg-amber-500 hover:bg-amber-400 text-white font-game px-3 py-2 rounded-lg shadow">Save Current Pack</button>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-500 mb-1">CHOOSE WORK FOLDER PACK:</label>
+                    <select id="folder-pack-selector" onchange="loadSelectedFolderIntoMemory(this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium">
+                        <!-- Dynamic Nodes -->
+                    </select>
+                </div>
+            </section>
+
+            <!-- EDITABLE DATA ROW CONTAINER -->
+            <section class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-game text-xs text-slate-400 uppercase tracking-widest">Active Pack Content</h4>
+                    <button onclick="insertBlankQuestionRow()" class="px-3 py-1 bg-sky-500 hover:bg-sky-400 text-white font-game text-xs rounded-lg shadow">+ Insert Row</button>
+                </div>
+                <div id="dash-questions-list-root" class="space-y-3 pb-12"></div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="p-2.5 bg-slate-800 text-[10px] text-slate-400 text-center relative z-20">
+        Tug of Knowledge Matrix • Clean Offline Component Build
+    </footer>
+
+    <!-- CENTRAL DRIVER ARCHITECTURE CORE SCRIPT -->
+    <script>
+        // Internal Storage Manifest structures
+        let masterFolderStorageMap = {
+            "Demo Pack": [
+                { text: "Frog", mediaType: "image", mediaUrl: "https://images.unsplash.com/photo-1548247416-ec66f4900b2e?w=400", choices: "", answer: "" },
+                { text: "Which insect makes honey?", mediaType: "audio", mediaUrl: "", choices: "Ant, Bee, Fly, Beetle", answer: "Bee" },
+                { text: "What is the opposite of 'hot'?", mediaType: "none", mediaUrl: "", choices: "", answer: "" }
+            ]
+        };
+
+        let activeFolderKey = "Demo Pack";
+        let activeQuestionsArray = [];
+        let playbackQuestionsQueue = []; // Holds active running order (can be randomized)
+
+        let currentKnotValue = 0; 
+        let currentQuestionIndex = 0;
+        
+        // Timer Loop references
+        let activeCountdownIntervalId = null;
+        let activeSecondsRemaining = 0;
+
+        // UI NAVIGATION CAPABILITY RAMP
+        function showScreen(screenId) {
+            ['start-screen', 'game-screen', 'victory-screen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            if (screenId === 'start-screen') closeDashboard();
+        }
+
+        function openDashboard() {
+            const el = document.getElementById('teacher-dashboard');
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.remove('translate-x-full'), 10);
+            updateDashboardFolderSelectorDropdown();
+            renderDashboardQuestionRowsList();
+            
+            // Read stored runtime parameters to keep checkboxes/selectors synced
+            document.getElementById('param-randomize-checkbox').checked = (localStorage.getItem('tok_param_randomize') === 'true');
+            if (localStorage.getItem('tok_param_timer')) {
+                document.getElementById('param-timer-select').value = localStorage.getItem('tok_param_timer');
+            }
+        }
+
+        function closeDashboard() {
+            const el = document.getElementById('teacher-dashboard');
+            el.classList.add('translate-x-full');
+            setTimeout(() => el.classList.add('hidden'), 200);
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(()=>{});
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function handlePreferenceParamChange() {
+            localStorage.setItem('tok_param_randomize', document.getElementById('param-randomize-checkbox').checked);
+            localStorage.setItem('tok_param_timer', document.getElementById('param-timer-select').value);
+        }
+
+        // STABLE ROPE ENGINE WITH EXACT KNOT SNAP COMPUTATION & HIGHER PRECISION WEBSTER TARGETS
+        const ropeTrackNode = document.getElementById('rope-track');
+        const flagPointerNode = document.getElementById('rope-flag');
+        let dragActiveState = false;
+
+        function getLeftPercentForKnot(knotNum) {
+            return 50 + (knotNum * 7.66);
+        }
+
+        function getClosestKnotFromPercent(pctVal) {
+            let relativeIndex = Math.round((pctVal - 50) / 7.66);
+            return Math.max(-6, Math.min(6, relativeIndex));
+        }
+
+        function forceFlagRenderPlacement(knotNum) {
+            const exactPercent = getLeftPercentForKnot(knotNum);
+            flagPointerNode.style.left = exactPercent + "%";
+
+            for (let i = -6; i <= 6; i++) {
+                const node = document.getElementById(`v-knot-${i}`);
+                if (!node) continue;
+                node.classList.remove('ring-4', 'ring-amber-400', 'scale-125', 'bg-amber-100');
+                if (i === knotNum && i !== -6 && i !== 6) {
+                    node.classList.add('ring-4', 'ring-amber-400', 'scale-125', 'bg-amber-100');
+                }
+            }
+
+            if (knotNum === -6) {
+                concludeMatchSequence(document.getElementById('setup-team-a').value || "Team A");
+            } else if (knotNum === 6) {
+                concludeMatchSequence(document.getElementById('setup-team-b').value || "Team B");
+            }
+        }
+
+        // UNIFIED UNINTERRUPTED POINTER DRIVER (VIEWBOARD AND IPAD COMPATIBLE)
+        function handlePointerMovementStart(e) {
+            dragActiveState = true;
+            ropeTrackNode.classList.add('dragging');
+            soundSnap();
+            processPointerCoordinates(e);
+        }
+
+        ropeTrackNode.addEventListener('pointerdown', handlePointerMovementStart);
+
+        window.addEventListener('pointermove', (e) => {
+            if (!dragActiveState) return;
+            processPointerCoordinates(e);
+        });
+
+        function handlePointerMovementEnd() {
+            if (!dragActiveState) return;
+            dragActiveState = false;
+            ropeTrackNode.classList.remove('dragging');
+
+            let currentTrackLeftPct = parseFloat(flagPointerNode.style.left) || 50;
+            currentKnotValue = getClosestKnotFromPercent(currentTrackLeftPct);
+            soundPull();
+            forceFlagRenderPlacement(currentKnotValue);
+        }
+
+        window.addEventListener('pointerup', handlePointerMovementEnd);
+        window.addEventListener('pointercancel', handlePointerMovementEnd);
+
+        function processPointerCoordinates(e) {
+            const boundary = ropeTrackNode.getBoundingClientRect();
+            let rawPxOffset = e.clientX - boundary.left;
+            let currentPct = (rawPxOffset / boundary.width) * 100;
+            if (currentPct < 2) currentPct = 2;
+            if (currentPct > 98) currentPct = 98;
+
+            flagPointerNode.style.left = currentPct + "%";
+            
+            let hoverKnot = getClosestKnotFromPercent(currentPct);
+            for (let i = -6; i <= 6; i++) {
+                const node = document.getElementById(`v-knot-${i}`);
+                if (node) node.classList.toggle('bg-amber-200', i === hoverKnot);
+            }
+        }
+
+        function pullRopeEngine(teamSide) {
+            if (teamSide === 'A') currentKnotValue -= 1;
+            if (teamSide === 'B') currentKnotValue += 1;
+            
+            if (currentKnotValue < -6) currentKnotValue = -6;
+            if (currentKnotValue > 6) currentKnotValue = 6;
+
+            soundPull();
+            forceFlagRenderPlacement(currentKnotValue);
+        }
+
+        function resetRopePosition() {
+            currentKnotValue = 0;
+            forceFlagRenderPlacement(0);
+        }
+
+        // TIMER EXECUTION RUNNERS
+        function clearActiveCountdownTimerLoop() {
+            if(activeCountdownIntervalId) {
+                clearInterval(activeCountdownIntervalId);
+                activeCountdownIntervalId = null;
+            }
+            document.getElementById('game-timer-display').classList.add('hidden');
+        }
+
+        function initiateCountdownTimerSequence() {
+            clearActiveCountdownTimerLoop();
+            const timerSetting = localStorage.getItem('tok_param_timer') || 'none';
+            if (timerSetting === 'none') return;
+
+            activeSecondsRemaining = parseInt(timerSetting, 10);
+            const timerBadge = document.getElementById('game-timer-display');
+            timerBadge.classList.remove('hidden');
+            timerBadge.innerText = `⏳ ${activeSecondsRemaining}s`;
+
+            activeCountdownIntervalId = setInterval(() => {
+                activeSecondsRemaining--;
+                if(activeSecondsRemaining <= 0) {
+                    clearActiveCountdownTimerLoop();
+                    timerBadge.classList.remove('hidden');
+                    timerBadge.innerText = "⏰ Time's Up!";
+                    soundIncorrect();
+                } else {
+                    timerBadge.innerText = `⏳ ${activeSecondsRemaining}s`;
+                    if(activeSecondsRemaining <= 3) playTone(400, 'sine', 0.05);
+                }
+            }, 1000);
+        }
+
+        // CONTENT LOADER CORE PIPELINE
+        function resetGameSessionData() {
+            resetRopePosition();
+            currentQuestionIndex = 0;
+            document.getElementById('game-team-a-name').innerText = document.getElementById('setup-team-a').value || "Team A";
+            document.getElementById('game-team-b-name').innerText = document.getElementById('setup-team-b').value || "Team B";
+            document.getElementById('active-folder-badge').innerText = activeFolderKey;
+
+            // Generate Queue based on randomization preferences choice setup
+            playbackQuestionsQueue = JSON.parse(JSON.stringify(activeQuestionsArray));
+            const isRandomized = (localStorage.getItem('tok_param_randomize') === 'true');
+            if(isRandomized && playbackQuestionsQueue.length > 1) {
+                for (let i = playbackQuestionsQueue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [playbackQuestionsQueue[i], playbackQuestionsQueue[j]] = [playbackQuestionsQueue[j], playbackQuestionsQueue[i]];
+                }
+            }
+        }
+
+        function startGame() {
+            if (!activeQuestionsArray || activeQuestionsArray.length === 0) {
+                alert("This active folder is empty! Please add a row configuration question line item in the dashboard panel.");
+                openDashboard();
+                return;
+            }
+            resetGameSessionData();
+            showScreen('game-screen');
+            loadActiveQuestionItemToUI();
+        }
+
+        function loadActiveQuestionItemToUI() {
+            clearActiveCountdownTimerLoop();
+            if (currentQuestionIndex >= playbackQuestionsQueue.length) currentQuestionIndex = 0;
+            if (currentQuestionIndex < 0) currentQuestionIndex = playbackQuestionsQueue.length - 1;
+
+            const currentDataNode = playbackQuestionsQueue[currentQuestionIndex];
+            document.getElementById('question-counter-text').innerText = `Question ${currentQuestionIndex + 1} of ${playbackQuestionsQueue.length}`;
+
+            const imgBox = document.getElementById('media-image-box');
+            const imgEl = document.getElementById('media-image-node');
+            const textEl = document.getElementById('media-text-node');
+            const audioBtn = document.getElementById('media-replay-voice-btn');
+            const choicesGrid = document.getElementById('media-choices-grid');
+
+            imgBox.classList.add('hidden');
+            imgEl.src = "";
+            textEl.innerText = "";
+            audioBtn.classList.add('hidden');
+            choicesGrid.classList.add('hidden');
+            choicesGrid.innerHTML = "";
+
+            if (currentDataNode.text && currentDataNode.text.trim()) {
+                textEl.innerText = currentDataNode.text;
+            }
+
+            // DYNAMIC RENDERING ADJUSTMENTS WITH SAFE SPEECH HIDING RULES
+            if (currentDataNode.mediaType === 'image' && currentDataNode.mediaUrl) {
+                textEl.className = "text-2xl md:text-3xl font-game tracking-wide text-slate-800 leading-normal";
+                imgEl.src = currentDataNode.mediaUrl;
+                imgBox.classList.remove('hidden');
+            } else if (currentDataNode.mediaType === 'audio') {
+                // TEXT IS DELIBERATELY HIDDEN TO PREVENT HINTS WHEN AI VOICE IS GENERATED
+                textEl.className = "hidden"; 
+                audioBtn.classList.remove('hidden');
+                audioBtn.style.display = 'inline-flex';
+                
+                if (currentDataNode.choices && currentDataNode.choices.trim()) {
+                    const cleanItems = currentDataNode.choices.split(',').map(c => c.trim()).filter(Boolean);
+                    if (cleanItems.length > 0) {
+                        choicesGrid.classList.remove('hidden');
+                        cleanItems.forEach(choiceText => {
+                            const btn = document.createElement('button');
+                            btn.className = "p-5 bg-slate-100 hover:bg-amber-100 text-slate-800 border-2 border-slate-200 hover:border-amber-400 font-game text-xl md:text-2xl rounded-2xl shadow transition-all active:scale-95 select-none";
+                            btn.innerText = choiceText;
+                            btn.onclick = (e) => {
+                                e.preventDefault();
+                                verifySelectedChoiceResponse(btn, choiceText, currentDataNode.answer);
+                            };
+                            choicesGrid.appendChild(btn);
+                        });
+                    }
+                }
+                triggerActiveSpeechGeneration();
+            } else {
+                // Text Only / Word Only Mode -> SUPER BIG SIZING FOR KIDS
+                textEl.className = "text-5xl md:text-6xl font-game tracking-loose text-sky-600 leading-snug py-6 filter drop-shadow-sm";
+            }
+
+            initiateCountdownTimerSequence();
+        }
+
+        function verifySelectedChoiceResponse(buttonNode, selectedText, correctText) {
+            const siblings = buttonNode.parentNode.children;
+            for(let node of siblings) {
+                node.classList.remove('bg-green-500', 'text-white', 'border-green-600', 'bg-red-500', 'border-red-600', 'shake-element');
+            }
+
+            const cleanSelected = selectedText.trim().toLowerCase();
+            const cleanCorrect = (correctText || "").trim().toLowerCase();
+
+            if (cleanSelected === cleanCorrect) {
+                soundCorrect();
+                clearActiveCountdownTimerLoop();
+                buttonNode.classList.remove('bg-slate-100', 'hover:bg-amber-100', 'text-slate-800');
+                buttonNode.classList.add('bg-green-500', 'text-white', 'border-green-600');
+            } else {
+                soundIncorrect();
+                buttonNode.classList.remove('bg-slate-100', 'hover:bg-amber-100', 'text-slate-800');
+                buttonNode.classList.add('bg-red-500', 'text-white', 'border-red-600', 'shake-element');
+            }
+        }
+
+        function triggerActiveSpeechGeneration() {
+            const currentDataNode = playbackQuestionsQueue[currentQuestionIndex];
+            if (currentDataNode && currentDataNode.text) {
+                generateAIVoiceSpeak(currentDataNode.text);
+            }
+        }
+
+        function changeQuestionIndex(step) {
+            currentQuestionIndex += step;
+            loadActiveQuestionItemToUI();
+        }
+
+        function exitGameArena() {
+            clearActiveCountdownTimerLoop();
+            showScreen('start-screen');
+        }
+
+        function concludeMatchSequence(winnerLabel) {
+            clearActiveCountdownTimerLoop();
+            soundVictory();
+            confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 } });
+            document.getElementById('winner-text-banner').innerText = `${winnerLabel.toUpperCase()} WINS THE MATCH!`;
+            showScreen('victory-screen');
+        }
+
+        // TEACHER FOLDERS DATA PERSISTENCE CONTEXT
+        function updateDashboardFolderSelectorDropdown() {
+            const dropdown = document.getElementById('folder-pack-selector');
+            dropdown.innerHTML = "";
+            Object.keys(masterFolderStorageMap).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = `${key} (${masterFolderStorageMap[key].length} questions)`;
+                if (key === activeFolderKey) opt.selected = true;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function saveActiveStackToFolder() {
+            const inputField = document.getElementById('new-folder-name-box');
+            const nameValue = inputField.value.trim();
+            if (!nameValue) { alert("Type a valid folder label name block first!"); return; }
+
+            masterFolderStorageMap[nameValue] = JSON.parse(JSON.stringify(activeQuestionsArray));
+            activeFolderKey = nameValue;
+            inputField.value = "";
+            
+            commitDataChangesToLocalStorage();
+            updateDashboardFolderSelectorDropdown();
+            alert(`Folder cluster "${nameValue}" has been committed to offline memory rows.`);
+        }
+
+        function loadSelectedFolderIntoMemory(key) {
+            if (!masterFolderStorageMap[key]) return;
+            activeFolderKey = key;
+            activeQuestionsArray = JSON.parse(JSON.stringify(masterFolderStorageMap[key]));
+            commitDataChangesToLocalStorage();
+            renderDashboardQuestionRowsList();
+        }
+
+        function renderDashboardQuestionRowsList() {
+            const root = document.getElementById('dash-questions-list-root');
+            root.innerHTML = "";
+
+            activeQuestionsArray.forEach((item, idx) => {
+                const block = document.createElement('div');
+                block.className = "p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs relative";
+                block.innerHTML = `
+                    <div class="flex justify-between items-center border-b pb-1">
+                        <span class="font-game text-sky-600">Row Q #${idx + 1}</span>
+                        <button onclick="deleteQuestionRow(${idx})" class="text-red-500 font-bold hover:underline">🗑️ Delete</button>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-0.5">Prompt Word / Question Text</label>
+                        <input type="text" value="${item.text.replace(/"/g, '&quot;')}" oninput="updateRowFieldMemory(${idx}, 'text', this.value)" class="w-full bg-white border rounded p-1.5 font-medium">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-0.5">Presentation Mode</label>
+                            <select onchange="updateRowFieldMemory(${idx}, 'mediaType', this.value); renderDashboardQuestionRowsList();" class="w-full bg-white border rounded p-1.5 font-medium">
+                                <option value="none" ${item.mediaType === 'none' ? 'selected' : ''}>Text Only (Big Font)</option>
+                                <option value="image" ${item.mediaType === 'image' ? 'selected' : ''}>Image Link</option>
+                                <option value="audio" ${item.mediaType === 'audio' ? 'selected' : ''}>AI Voice Generation</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-0.5">Source URL Path Link</label>
+                            <input type="text" placeholder="https://..." value="${item.mediaUrl || ''}" oninput="updateRowFieldMemory(${idx}, 'mediaUrl', this.value)" class="w-full bg-white border rounded p-1.5 font-medium" ${item.mediaType !== 'image' ? 'disabled bg-slate-100' : ''}>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-dashed border-slate-200 ${item.mediaType !== 'audio' ? 'hidden' : ''}">
+                        <div>
+                            <label class="block text-[10px] font-bold text-amber-600 mb-0.5">Choices (Separate with commas)</label>
+                            <input type="text" placeholder="Cat, Dog, Bee, Pig" value="${item.choices || ''}" oninput="updateRowFieldMemory(${idx}, 'choices', this.value)" class="w-full bg-white border border-amber-200 rounded p-1.5 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-green-600 mb-0.5">Exact Correct Answer</label>
+                            <input type="text" placeholder="Bee" value="${item.answer || ''}" oninput="updateRowFieldMemory(${idx}, 'answer', this.value)" class="w-full bg-white border border-green-200 rounded p-1.5 font-medium">
+                        </div>
+                    </div>
+                `;
+                root.appendChild(block);
+            });
+        }
+
+        function updateRowFieldMemory(idx, key, val) {
+            activeQuestionsArray[idx][key] = val;
+            masterFolderStorageMap[activeFolderKey] = JSON.parse(JSON.stringify(activeQuestionsArray));
+            commitDataChangesToLocalStorage();
+        }
+
+        function insertBlankQuestionRow() {
+            activeQuestionsArray.push({ text: "Sample Target Question Prompt", mediaType: "none", mediaUrl: "", choices: "", answer: "" });
+            masterFolderStorageMap[activeFolderKey] = JSON.parse(JSON.stringify(activeQuestionsArray));
+            commitDataChangesToLocalStorage();
+            renderDashboardQuestionRowsList();
+            updateDashboardFolderSelectorDropdown();
+        }
+
+        function deleteQuestionRow(idx) {
+            activeQuestionsArray.splice(idx, 1);
+            masterFolderStorageMap[activeFolderKey] = JSON.parse(JSON.stringify(activeQuestionsArray));
+            commitDataChangesToLocalStorage();
+            renderDashboardQuestionRowsList();
+            updateDashboardFolderSelectorDropdown();
+        }
+
+        function commitDataChangesToLocalStorage() {
+            localStorage.setItem('tok_manifest_v4_data', JSON.stringify(masterFolderStorageMap));
+            localStorage.setItem('tok_manifest_v4_key', activeFolderKey);
+        }
+
+        // INITIAL LIFE ENGINE INJECTION EXECUTOR
+        (function bootSystemSequence() {
+            const storeManifest = localStorage.getItem('tok_manifest_v4_data');
+            const storeKey = localStorage.getItem('tok_manifest_v4_key');
+
+            if (storeManifest) {
+                try {
+                    masterFolderStorageMap = JSON.parse(storeManifest);
+                } catch(e){}
+            }
+            if (storeKey && masterFolderStorageMap[storeKey]) {
+                activeFolderKey = storeKey;
+            } else {
+                activeFolderKey = Object.keys(masterFolderStorageMap)[0];
+            }
+
+            activeQuestionsArray = JSON.parse(JSON.stringify(masterFolderStorageMap[activeFolderKey]));
+            forceFlagRenderPlacement(0);
+            showScreen('start-screen');
+        })();
+    </script>
+</body>
+</html>
